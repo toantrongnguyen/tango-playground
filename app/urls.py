@@ -1,8 +1,9 @@
 from django.urls import path
+from rest_framework.routers import DefaultRouter
 from . import views
-from .views.company import company_collection, company_element
+from .views.company import CompanyViewSet
 
-urlpatterns = [
-    path('companies/', company_collection, name='company-index'),
-    path('companies/<int:company_id>', company_element, name='company-index'),
-]
+router = DefaultRouter(trailing_slash=False)
+router.register(r'companies', CompanyViewSet)
+
+urlpatterns = router.urls

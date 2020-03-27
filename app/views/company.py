@@ -1,28 +1,70 @@
-from django.http import HttpResponse, JsonResponse, Http404
-from django.views import View
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND, HTTP_204_NO_CONTENT
 from ..models import Company
+from ..serializers import CompanySerializer
 
-def index(request):
-    return JsonResponse(list(Company.objects.values()), safe=False)
 
-def store(request):
-    return JsonResponse(list(Company.objects.values()), safe=False)
+class CompanyViewSet(ModelViewSet):
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
 
-def company_collection(request):
-    if request.method == 'GET':
-        return index(request)
-    elif request.method == 'POST':
-        return index(request)
+    def list(self, request):
+        return Response(Company.objects.all())
 
-    raise Http404()
+    def create(self, request):
+        serializer = CompanySerializer(data=request.data)
 
-def company_element(request):
-    if request.method == 'GET':
-        return index(request)
-    # elif request.method == 'post':
-        # return index(request)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
 
-    return Http404()
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
-def show(request, company_id):
-    return JsonResponse(Company.objects.values().get(pk=company_id), safe=False)
+    def retrieve(self, request, pk=None):
+        try:
+            company = Company.objects.get(pk=pk)
+        except Company.DoesNotExist:
+            return Response(status=HTTP_404_NOT_FOUND)
+
+        serializer = CompanySerializer(company)
+
+        return Response(serializer.data)
+
+    def update(self, request, pk=None):
+        try:
+            company = Company.objects.get(pk=pk)
+        except Company.DoesNotExist:
+            return Response(status=HTTP_404_NOT_FOUND)
+
+        serializer = CompanySerializer(company, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+    def partial_update(self, request, pk=None):
+        try:
+            company = Company.objects.get(pk=pk)
+        except Company.DoesNotExist:
+            return Response(status=HTTP_404_NOT_FOUND)
+
+        serializer = CompanySerializer(company, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, pk=None):
+        try:
+            company = Company.objects.get(pk=pk)
+        except Company.DoesNotExist:
+            return Response(status=HTTP_404_NOT_FOUND)
+
+        company.delete()
+
+        return Response(status=HTTP_204_NO_CONTENT)
