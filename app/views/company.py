@@ -13,7 +13,7 @@ class CompanyViewSet(ModelViewSet):
     serializer_class = CompanySerializer
 
     def list(self, request):
-        return Response(Company.objects.all())
+        return Response(Company.objects.values())
 
     def create(self, request):
         serializer = CompanySerializer(data=request.data)

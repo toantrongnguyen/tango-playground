@@ -8,5 +8,5 @@ router.register(r'companies', CompanyViewSet)
 
 urlpatterns = router.urls
 urlpatterns += [
-    url(r'^login/', CustomAuthToken.obtain_auth_token)
+    path('login/', CustomAuthToken.as_view())
 ]
